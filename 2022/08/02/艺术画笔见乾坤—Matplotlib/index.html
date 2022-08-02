@@ -1,0 +1,568 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hesper'blog | Hesper'blog</title><meta name="author" content="Hesper"><meta name="copyright" content="Hesper"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="艺术画笔见乾坤—Matplotlib绘图步骤matplotlib的原理或者说基础逻辑是，用Artist对象在画布(canvas)上绘制(Render)图形。这与人作画的步骤类似：  准备一块画布或画纸 准备好颜料、画笔等制图工具 作画  所以相对，matplotlib有三个层次的API： matplotlib.backend_bases.FigureCanvas 代表了绘图区，所有的图像都是在绘图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hesper&#39;blog">
+<meta property="og:url" content="http://example.com/2022/08/02/%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib/index.html">
+<meta property="og:site_name" content="Hesper&#39;blog">
+<meta property="og:description" content="艺术画笔见乾坤—Matplotlib绘图步骤matplotlib的原理或者说基础逻辑是，用Artist对象在画布(canvas)上绘制(Render)图形。这与人作画的步骤类似：  准备一块画布或画纸 准备好颜料、画笔等制图工具 作画  所以相对，matplotlib有三个层次的API： matplotlib.backend_bases.FigureCanvas 代表了绘图区，所有的图像都是在绘图">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/yr.jpg">
+<meta property="article:published_time" content="2022-08-02T03:13:50.850Z">
+<meta property="article:modified_time" content="2022-08-02T03:12:38.152Z">
+<meta property="article:author" content="Hesper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/yr.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/08/02/%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":29,"languages":{"author":"作者: Hesper","link":"链接: ","source":"来源: Hesper'blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Hesper\'blog',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-08-02 11:12:38'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://avatars.githubusercontent.com/Hesper-i" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 视频</span></a></li><li><a class="site-page child" href="/gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/yr.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Hesper'blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 视频</span></a></li><li><a class="site-page child" href="/gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">无题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-08-02T03:13:50.850Z" title="发表于 2022-08-02 11:13:50">2022-08-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-08-02T03:12:38.152Z" title="更新于 2022-08-02 11:12:38">2022-08-02</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="艺术画笔见乾坤—Matplotlib"><a href="#艺术画笔见乾坤—Matplotlib" class="headerlink" title="艺术画笔见乾坤—Matplotlib"></a>艺术画笔见乾坤—Matplotlib</h1><h2 id="绘图步骤"><a href="#绘图步骤" class="headerlink" title="绘图步骤"></a>绘图步骤</h2><p>matplotlib的原理或者说基础逻辑是，用Artist对象在画布(canvas)上绘制(Render)图形。这与人作画的步骤类似：</p>
+<ol>
+<li>准备一块画布或画纸</li>
+<li>准备好颜料、画笔等制图工具</li>
+<li>作画</li>
+</ol>
+<p>所以相对，matplotlib有三个层次的API：</p>
+<p><strong>matplotlib.backend_bases.FigureCanvas</strong> 代表了绘图区，所有的图像都是在绘图区完成的<br><strong>matplotlib.backend_bases.Renderer</strong> 代表了渲染器，可以近似理解为画笔，控制如何在 FigureCanvas 上画图。<br><strong>matplotlib.artist.Artist</strong> 代表了具体的图表组件，即调用了Renderer的接口在Canvas上作图。<br>前两者处理程序和计算机的底层交互的事项，第三项Artist就是具体的调用接口来做出我们想要的图，比如图形、文本、线条的设定。所以通常来说，我们95%的时间，都是用来和<strong>matplotlib.artist.Artist类</strong>打交道的。</p>
+<h2 id="Artist分类"><a href="#Artist分类" class="headerlink" title="Artist分类"></a>Artist分类</h2><p>Artist有两种类型：primitives 和 containers</p>
+<ul>
+<li><code>primitives</code> 是基本要素，它包含一些我们在绘图区昨天用到的标准图形对象，如<strong>曲线Line2D，文字text，矩形Rectangle，图像image</strong>等。</li>
+<li><code>container</code>是容器，即用来装基本要素的地方，包括<strong>图形figure、坐标系Axes和坐标轴Axis</strong>。他们之间的关系如下图所示：</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20201122230916134.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl8zODYwNDk2MQ==,size_16,color_FFFFFF,t_70#pic_center" alt="分类">可视化中常见的artist类可以参考下图这张表格。</p>
+<table>
+<thead>
+<tr>
+<th>Axes helper method</th>
+<th>Artist</th>
+<th>Container</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>bar</code> - bar charts</td>
+<td><code>Rectangle</code></td>
+<td>ax.patches</td>
+</tr>
+<tr>
+<td><code>errorbar</code> - error bar plots</td>
+<td><code>Line2D</code> and <code>Rectangle</code></td>
+<td>ax.lines and ax.patches</td>
+</tr>
+<tr>
+<td><code>fill</code> - shared area</td>
+<td><code>Polygon</code></td>
+<td>ax.patches</td>
+</tr>
+<tr>
+<td><code>hist</code> - histograms</td>
+<td><code>Rectangle</code></td>
+<td>ax.patches</td>
+</tr>
+<tr>
+<td><code>imshow</code> - image data</td>
+<td><code>AxesImage</code></td>
+<td>ax.images</td>
+</tr>
+<tr>
+<td><code>plot</code> - xy plots</td>
+<td><code>Line2D</code></td>
+<td>ax.lines</td>
+</tr>
+<tr>
+<td><code>scatter</code> - scatter charts</td>
+<td><code>PolyCollection</code></td>
+<td>ax.collections</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>Axes helper methord 表示matplotlib中子图上的辅助方法，可以理解为可视化中不同种类的图表类型，如柱状图，折线图，直方图等，这些图表都可以用这些辅助方法直接画出来，属于更高层级的抽象。</p>
+</li>
+<li><p>Artist 表示不同图表背后的artist类，比如折线图方法<code>plot</code>在底层用到的就是<code>Line2D</code>这一artist类。</p>
+</li>
+<li><p>Container 是第二列的列表容器，例如所有在子图中创建的<code>Line2D</code>对象都会被自动收集到<code>ax.lines</code>返回的列表中。</p>
+</li>
+</ul>
+<p>后面的案例更清楚地阐释了这三者的关系，其实在很多时候，我们只用记住第一列的辅助方法进行绘图即可，而无需关注具体底层使用了哪些类，但是了解底层类有助于我们绘制一些复杂的图表，因此也很有必要了解。</p>
+<h2 id="基本元素-primitives"><a href="#基本元素-primitives" class="headerlink" title="基本元素-primitives"></a>基本元素-primitives</h2><p>各容器中可能会包含多种<code>基本要素-primitives</code>, 所以先介绍下primitives，再介绍容器。</p>
+<p>本章重点介绍下 <code>primitives</code> 的几种类型：<strong>曲线-Line2D，矩形-Rectangle，多边形-Polygon，图像-image</strong></p>
+<h3 id="1-Line2D"><a href="#1-Line2D" class="headerlink" title="1. Line2D"></a>1. Line2D</h3><p>matplotlib中曲线的绘制，主要是通过类matplotlib.lines.Line2D来完成。其中<code>line</code>的含义：表示的可以是连接所有顶点的实线样式，也可以是每个顶点的标记。此外，这条线也会受到绘画风格的影响，比如，我们可以创建虚线种类的线。</p>
+<p>它的构造函数：</p>
+<blockquote>
+<p>class matplotlib.lines.Line2D(xdata, ydata, linewidth=None, linestyle=None, color=None, marker=None, markersize=None, markeredgewidth=None, markeredgecolor=None, markerfacecolor=None, markerfacecoloralt=’none’, fillstyle=None, antialiased=None, dash_capstyle=None, solid_capstyle=None, dash_joinstyle=None, solid_joinstyle=None, pickradius=5, drawstyle=None, markevery=None, **kwargs)</p>
+</blockquote>
+<p>其中常用的参数有：</p>
+<ul>
+<li><strong>xdata</strong>:需要绘制的line中点的在x轴上的取值，若忽略，则默认为range(1,len(ydata)+1)</li>
+<li><strong>ydata</strong>:需要绘制的line中点的在y轴上的取值</li>
+<li><strong>linewidth</strong>:线条的宽度</li>
+<li><strong>linestyle</strong>:线型</li>
+<li><strong>color</strong>:线条的颜色</li>
+<li><strong>marker</strong>:点的标记，详细可参考<a target="_blank" rel="noopener" href="https://matplotlib.org/api/markers_api.html#module-matplotlib.markers">markers API</a></li>
+<li><strong>markersize</strong>:标记的size</li>
+</ul>
+<p>其他详细参数可参考<a target="_blank" rel="noopener" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html">Line2D官方文档</a></p>
+<h4 id="1-1-如何设置Line2D的属性"><a href="#1-1-如何设置Line2D的属性" class="headerlink" title="1.1 如何设置Line2D的属性"></a>1.1 如何设置<code>Line2D</code>的属性</h4><p>有三种方法可以用设置线的属性：</p>
+<ol>
+<li><p>直接在plot()函数中设置</p>
+</li>
+<li><p>通过获得线对象，对线对象进行设置</p>
+</li>
+<li><p>获得线属性，使用setp()函数设置</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接在plot()函数中设置</span></span><br><span class="line">x = <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">5</span>)</span><br><span class="line">y = [<span class="number">2</span>,<span class="number">5</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">10</span>]</span><br><span class="line">plt.plot(x,y, linewidth=<span class="number">10</span>); <span class="comment"># 设置线的粗细参数为10</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://datawhalechina.github.io/fantastic-matplotlib/_images/index_2_01.png" alt="../_images/index_2_01.png"></p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 面向对象，通过获取线对象，然后对其属性进行设置</span></span><br><span class="line">x = <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">5</span>)</span><br><span class="line">y = [<span class="number">2</span>,<span class="number">5</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">10</span>]</span><br><span class="line">line, = plt.plot(x, y, <span class="string">&#x27;-&#x27;</span>) <span class="comment"># 这里等号坐标的line,是一个列表解包的操作，目的是获取plt.plot返回列表中的Line2D对象</span></span><br><span class="line">line.set_antialiased(<span class="literal">False</span>); <span class="comment"># 关闭抗锯齿功能</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://datawhalechina.github.io/fantastic-matplotlib/_images/index_3_01.png" alt="../_images/index_3_01.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 也可以先获得线属性，使用step函数设置</span></span><br><span class="line">x = <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">5</span>)</span><br><span class="line">y = [<span class="number">2</span>,<span class="number">5</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">10</span>]</span><br><span class="line">lines = plt.plot(x, y)</span><br><span class="line">plt.setp(lines, color=<span class="string">&#x27;r&#x27;</span>, linewidth=<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://datawhalechina.github.io/fantastic-matplotlib/_images/index_4_01.png" alt="../_images/index_4_01.png"></p>
+<h4 id="1-2-如何绘制line"><a href="#1-2-如何绘制line" class="headerlink" title="1.2 如何绘制line"></a>1.2 如何绘制line</h4><ol>
+<li>绘制直线line</li>
+<li>errorbar绘制误差折线图</li>
+</ol>
+<p><strong>1）</strong>介绍两种绘制直线line常用的方法:</p>
+<ul>
+<li><strong>plot方法绘制</strong></li>
+<li><strong>Line2D对象绘制</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. plot方法绘制</span></span><br><span class="line">x = <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">5</span>)</span><br><span class="line">y1 = [<span class="number">2</span>,<span class="number">5</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">10</span>]</span><br><span class="line">y2= [<span class="number">3</span>,<span class="number">6</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">11</span>]</span><br><span class="line"></span><br><span class="line">fig,ax= plt.subplots()</span><br><span class="line">ax.plot(x,y1)</span><br><span class="line">ax.plot(x,y2)</span><br><span class="line"><span class="built_in">print</span>(ax.lines);</span><br><span class="line"><span class="comment"># 通过直接使用辅助方法画线，打印ax.lines后可以看到在matplotlib在底层创建了两个Line2D对象</span></span><br><span class="line">[&lt;matplotlib.lines.Line2D <span class="built_in">object</span> at <span class="number">0x000001EBFE710A90</span>&gt;, &lt;matplotlib.lines.Line2D <span class="built_in">object</span> at <span class="number">0x000001EBFE710E20</span>&gt;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://datawhalechina.github.io/fantastic-matplotlib/_images/index_6_1.png" alt="../_images/index_6_1.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 2. Line2D对象绘制</span></span><br><span class="line"></span><br><span class="line">x = <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">5</span>)</span><br><span class="line">y1 = [<span class="number">2</span>,<span class="number">5</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">10</span>]</span><br><span class="line">y2= [<span class="number">3</span>,<span class="number">6</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">11</span>]</span><br><span class="line">fig,ax= plt.subplots()</span><br><span class="line">lines = [Line2D(x, y1), Line2D(x, y2,color=<span class="string">&#x27;orange&#x27;</span>)]  <span class="comment"># 显式创建Line2D对象</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> lines:</span><br><span class="line">    ax.add_line(line) <span class="comment"># 使用add_line方法将创建的Line2D添加到子图中</span></span><br><span class="line">ax.set_xlim(<span class="number">0</span>,<span class="number">4</span>)</span><br><span class="line">ax.set_ylim(<span class="number">2</span>, <span class="number">11</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://datawhalechina.github.io/fantastic-matplotlib/_images/index_7_01.png" alt="../_images/index_7_01.png"></p>
+<p><strong>2）</strong><code>errorbar</code> 绘制误差折线图</p>
+<p><code>pyplot</code> 里有个专门绘制误差线的功能，通过 <code>errorbar</code> 类实现，它的构造函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matplotlib.pyplot.errorbar(x, y, yerr=<span class="literal">None</span>, xerr=<span class="literal">None</span>, fmt=<span class="string">&#x27;&#x27;</span>, ecolor=<span class="literal">None</span>, elinewidth=<span class="literal">None</span>, capsize=<span class="literal">None</span>, barsabove=<span class="literal">False</span>, lolims=<span class="literal">False</span>, uplims=<span class="literal">False</span>, xlolims=<span class="literal">False</span>, xuplims=<span class="literal">False</span>, errorevery=<span class="number">1</span>, capthick=<span class="literal">None</span>, *, data=<span class="literal">None</span>, **kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>其中最主要的参数包括：</p>
+<ul>
+<li><strong>x</strong>：需要绘制的 <code>line</code> 中点的在 <code>x</code> 轴上的取值</li>
+<li><strong>y</strong>：需要绘制的 <code>line</code> 中点的在 <code>y</code> 轴上的取值</li>
+<li><strong>yerr</strong>：指定 <code>y</code> 轴水平的误差</li>
+<li><strong>xerr</strong>：指定 <code>x</code> 轴水平的误差</li>
+<li><strong>fmt</strong>：指定折线图中某个点的颜色，形状，线条风格，例如 <code>co--</code></li>
+<li><strong>ecolor</strong>：指定 <code>error bar</code> 的颜色</li>
+<li><strong>elinewidth</strong>：指定 <code>error bar</code> 的线条宽度</li>
+</ul>
+<p>**绘制 <code>errorbar</code>**：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">x = np.arange(<span class="number">10</span>)</span><br><span class="line">y = <span class="number">2.5</span> * np.sin(x / <span class="number">20</span>* np.pi)</span><br><span class="line">yerr = np.linspace(<span class="number">0.05</span>, <span class="number">0.2</span>, <span class="number">10</span>)</span><br><span class="line">plt.errorbar(x, y + <span class="number">3</span>, yerr = yerr, label = <span class="string">&#x27;both limits (default)&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Result:</p>
+<p><img src="data:image/png;base64,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" alt="img"></p>
+<h3 id="2-patches"><a href="#2-patches" class="headerlink" title="2.patches"></a>2.patches</h3><p><code>matplotlib.patches.Patch</code> 类是二维图形类，并且它是众多二维图形的父类，它的所有子类见 <a target="_blank" rel="noopener" href="https://matplotlib.org/stable/api/patches_api.html">matplotlib.patches API</a>，<code>Patch</code> 类的构造函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Patch(edgecolor=None, facecolor=None, color=None, linewidth=None, linestyle=None, antialiased=None, hatch=None, fill=True, capstyle=None, joinstyle=None, **kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>本小节主要聚焦三种最常见的子类，矩形、多边形和楔形。</p>
+<h4 id="1-Rectangle-矩形"><a href="#1-Rectangle-矩形" class="headerlink" title="1.Rectangle-矩形"></a>1.<code>Rectangle</code>-矩形</h4><p><code>Rectangle</code> 矩形类在官网中的定义是：通过描点 <code>xy</code> 及宽度和高度生成。<code>Rectangle</code> 本身主要比较简单，即 <code>xy</code> 控制描点，<code>width</code> 和 <code>height</code> 分别控制宽和高。它的构造函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">matplotlib</span>.<span class="title">patches</span>.<span class="title">Rectangle</span>(<span class="params">xy, width, height, angle=<span class="number">0.0</span>, **kwargs</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>在实际使用过程中最常用的是 <strong><code>hist</code> 直方图</strong> 和 <strong><code>bar</code> 条形图</strong>。</p>
+<ul>
+<li><p><code>hist</code> 直方图</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matplotlib.pyplot.hist(x,bins=<span class="literal">None</span>,<span class="built_in">range</span>=<span class="literal">None</span>, density=<span class="literal">None</span>, bottom=<span class="literal">None</span>, histtype=<span class="string">&#x27;bar&#x27;</span>, align=<span class="string">&#x27;mid&#x27;</span>, log=<span class="literal">False</span>, color=<span class="literal">None</span>, label=<span class="literal">None</span>, stacked=<span class="literal">False</span>, normed=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+
+<p>常用参数及含义：</p>
+<ul>
+<li><strong>x</strong>: 数据集，最终的直方图将对数据集进行统计</li>
+<li><strong>bins</strong>: 统计的区间分布</li>
+<li><strong>range</strong>: <code>tuple</code>, 显示的区间，<code>range</code> 在没有给出 <code>bins</code> 时生效</li>
+<li><strong>density</strong>: <code>bool</code>，默认为 <code>false</code>，显示的是频数统计结果，为 <code>True</code> 则显示频率统计结果，这里需要注意，频率统计结果=区间数目/(总数*区间宽度)，和 <code>normed</code> 效果一致，官方推荐使用 <code>density</code></li>
+<li><strong>histtype</strong>: 可选{<code>bar</code>, <code>barstacked</code>, <code>step</code>, <code>stepfilled</code>}之一，默认为 <code>bar</code>，推荐使用默认配置，<code>step</code> 使用的是梯状，<code>stepfilled</code> 则会对梯状内部进行填充，效果与 <code>bar</code> 类似</li>
+<li><strong>align</strong>: 可选{<code>left</code>, <code>mid</code>, <code>right</code>}之一，默认为 <code>mid</code>，控制柱状图的水平分布，<code>left</code> 或者 <code>right</code>，会有部分空白区域，推荐使用默认</li>
+<li><strong>log</strong>: <code>bool</code>，默认 <code>False</code>,即 <code>y</code> 坐标轴是否选择指数刻度</li>
+<li><strong>stacked</strong>: <code>bool</code>，默认为 <code>False</code>，是否为堆积状图</li>
+</ul>
+</li>
+</ul>
+<p><strong>hist绘制直方图</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x=np.random.randint(0,100,100) #生成[0-100)之间的100个数据,即 数据集 </span><br><span class="line">bins=np.arange(0,101,10) #设置连续的边界值，即直方图的分布区间[0,10),[10,20)... </span><br><span class="line">plt.hist(x,bins,color=&#x27;fuchsia&#x27;,alpha=0.5)#alpha设置透明度，0为完全透明 </span><br><span class="line">plt.xlabel(&#x27;scores&#x27;) </span><br><span class="line">plt.ylabel(&#x27;count&#x27;) </span><br><span class="line">plt.xlim(0,100); #设置x轴分布范围 </span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>Rectangle</code> 矩阵类绘制直方图</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">df = pd.DataFrame(columns = [<span class="string">&#x27;data&#x27;</span>])</span><br><span class="line">df.loc[:,<span class="string">&#x27;data&#x27;</span>] = x</span><br><span class="line">df[<span class="string">&#x27;fenzu&#x27;</span>] = pd.cut(df[<span class="string">&#x27;data&#x27;</span>], bins=bins, right = <span class="literal">False</span>,include_lowest=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">df_cnt = df[<span class="string">&#x27;fenzu&#x27;</span>].value_counts().reset_index()</span><br><span class="line">df_cnt.loc[:,<span class="string">&#x27;mini&#x27;</span>] = df_cnt[<span class="string">&#x27;index&#x27;</span>].astype(<span class="built_in">str</span>).<span class="built_in">map</span>(<span class="keyword">lambda</span> x:re.findall(<span class="string">&#x27;\[(.*)\,&#x27;</span>,x)[<span class="number">0</span>]).astype(<span class="built_in">int</span>)</span><br><span class="line">df_cnt.loc[:,<span class="string">&#x27;maxi&#x27;</span>] = df_cnt[<span class="string">&#x27;index&#x27;</span>].astype(<span class="built_in">str</span>).<span class="built_in">map</span>(<span class="keyword">lambda</span> x:re.findall(<span class="string">&#x27;\,(.*)\)&#x27;</span>,x)[<span class="number">0</span>]).astype(<span class="built_in">int</span>)</span><br><span class="line">df_cnt.loc[:,<span class="string">&#x27;width&#x27;</span>] = df_cnt[<span class="string">&#x27;maxi&#x27;</span>]- df_cnt[<span class="string">&#x27;mini&#x27;</span>]</span><br><span class="line">df_cnt.sort_values(<span class="string">&#x27;mini&#x27;</span>,ascending = <span class="literal">True</span>,inplace = <span class="literal">True</span>)</span><br><span class="line">df_cnt.reset_index(inplace = <span class="literal">True</span>,drop = <span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#用Rectangle把hist绘制出来</span></span><br><span class="line"></span><br><span class="line">fig = plt.figure()</span><br><span class="line">ax1 = fig.add_subplot(<span class="number">111</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> df_cnt.index:</span><br><span class="line">    rect =  plt.Rectangle((df_cnt.loc[i,<span class="string">&#x27;mini&#x27;</span>],<span class="number">0</span>),df_cnt.loc[i,<span class="string">&#x27;width&#x27;</span>],df_cnt.loc[i,<span class="string">&#x27;fenzu&#x27;</span>])</span><br><span class="line">    ax1.add_patch(rect)</span><br><span class="line"></span><br><span class="line">ax1.set_xlim(<span class="number">0</span>, <span class="number">100</span>)</span><br><span class="line">ax1.set_ylim(<span class="number">0</span>, <span class="number">16</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>bar</code> 柱状图</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matplotlib.pyplot.bar(left, height, alpha=<span class="number">1</span>, width=<span class="number">0.8</span>, color=, edgecolor=, label=, lw=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<p>常用的参数：</p>
+<ul>
+<li><strong>left</strong>：x轴的位置序列，一般采用range函数产生一个序列，但是有时候可以是字符串</li>
+<li><strong>height</strong>：y轴的数值序列，也就是柱形图的高度，一般就是我们需要展示的数据；</li>
+<li><strong>alpha</strong>：透明度，值越小越透明</li>
+<li><strong>width</strong>：为柱形图的宽度，一般这是为0.8即可；</li>
+<li><strong>color或facecolor</strong>：柱形图填充的颜色；</li>
+<li><strong>edgecolor</strong>：图形边缘颜色</li>
+<li><strong>label</strong>：解释每个图像代表的含义，这个参数是为legend()函数做铺垫的，表示该次bar的标签</li>
+</ul>
+<p>与上述类似，同样有两种方式绘制柱状图：</p>
+<ul>
+<li><code>bar</code> 绘制柱状图</li>
+<li><code>Rectangle</code>矩形类绘制柱状图</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>bar</code> 绘制柱状图</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y = range(1,17)</span><br><span class="line">plt.bar(np.arange(16), y, alpha=0.5, width=0.5, color=&#x27;yellow&#x27;, edgecolor=&#x27;red&#x27;, label=&#x27;The First Bar&#x27;, lw=3);</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7Mc1lF.md.png" alt="img"></p>
+<p><strong><code>Rectangle</code></strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">ax1 = fig.add_subplot(111)</span><br><span class="line"></span><br><span class="line">for i in range(1, 17):</span><br><span class="line">  rect = plt.Rectangle((i+0.25, 0), 0.5, i)</span><br><span class="line">  ax1.add_patch(rect)</span><br><span class="line">ax1.set_xlim(0, 16)</span><br><span class="line">ax1.set_ylim(0, 16);</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7MclSU.md.png"></p>
+<h4 id="2-Polygon-多边形"><a href="#2-Polygon-多边形" class="headerlink" title="2.Polygon-多边形"></a>2.<code>Polygon</code>-多边形</h4><p><code>matplotlib.patches.Polygon</code> 类是多边形类，它的构造函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class matplotlib.patches.Polygon(xy, closed=True, **kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<ul>
+<li><code>xy</code> 是一个 N \times 2N×2 的 <code>numpy.array</code>，为多边形的顶点。</li>
+<li><code>closed</code> 为 <code>True</code> 则制定多边形将起点和终点重合从而显式关闭多边形。</li>
+</ul>
+<p><code>matplotlib.patches.Polygon</code> 类中常用的是 <code>fill</code> 类，它是基于 <code>xy</code> 绘制一个填充的多边形，它的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matplotlib.pyplot.fill(args, data=None, *kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：关于 <code>x</code>、<code>y</code> 和 <code>color</code> 的序列，其中 <code>color</code> 是可选的参数，每个多边形都是由其他节点的 <code>x</code> 和 <code>y</code> 位置列表定义，后面可以选择一个颜色说明符。</p>
+<p><strong>用 <code>fill</code> 来绘制图形</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x = np.linspace(0, 5*np.pi, 1000)</span><br><span class="line">y1 = np.sin(x)</span><br><span class="line">y2 = np.sin(2*x)</span><br><span class="line">plt.fill(x, y1, color = &#x27;g&#x27;, alpha = 0.3);</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7McMWT.md.png"></p>
+<h4 id="3-Wedge-楔形"><a href="#3-Wedge-楔形" class="headerlink" title="3.Wedge-楔形"></a>3.<code>Wedge</code>-楔形</h4><p><code>matplotlib.patches.Wedge</code> 类是楔形类，构造函数为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">matplotlib</span>.<span class="title">patches</span>.<span class="title">Wedge</span>(<span class="params">center, r, theta1, theta2, width=<span class="literal">None</span>, **kwargs</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>一个 <code>Wedge</code>-楔形是以坐标 <code>x, y</code> 为中心，半径为 <code>r</code>，从 \theta_1θ1 扫到 \theta_2θ2（单位是度）。如果宽度给定，则从内半径 <code>r</code>-宽度 到外半径 <code>r</code> 画出部分楔形。<code>wedge</code> 中比较常见的是绘制饼状图。</p>
+<p><strong>以绘制饼图为例</strong>。通常我们可以使用 <code>matplotlib.pyplot.pie</code> 直接绘制饼图，其构造函数有如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matplotlib.pyplot.pie(x, explode=None, labels=None, colors=None, autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=0, radius=1, counterclock=True, wedgeprops=None, textprops=None, center=0, 0, frame=False, rotatelabels=False, *, normalize=None, data=None)</span><br></pre></td></tr></table></figure>
+
+<p>制作数据 <code>x</code> 的饼图，每个楔子的面积用 <code>x/sum(x)</code> 表示。其主要的参数是前四个：</p>
+<ul>
+<li><strong>x</strong>：契型的形状，一维数组。</li>
+<li><strong>explode</strong>：如果不是等于 <code>None</code>，则是一个 <code>len(x)</code> 数组，它指定用于偏移每个楔形块的半径的分数；</li>
+<li><strong>labels</strong>：用于指定每个契型块的标记，取值是列表或为 <code>None</code>；</li>
+<li><strong>colors</strong>：饼图循环使用的颜色序列。如果取值为 <code>None</code>，将使用当前活动循环中的颜色；</li>
+<li><strong>startangle</strong>：饼状图开始的绘制的角度。</li>
+</ul>
+<p><strong><code>pie</code> 函数绘制饼图</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">labels = <span class="string">&#x27;Frogs&#x27;</span>, <span class="string">&#x27;Hogs&#x27;</span>, <span class="string">&#x27;Dogs&#x27;</span>, <span class="string">&#x27;Logs&#x27;</span></span><br><span class="line">sizes = [<span class="number">15</span>, <span class="number">30</span>, <span class="number">45</span>, <span class="number">10</span>]</span><br><span class="line">explode = (<span class="number">0</span>, <span class="number">0.1</span>, <span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line">fig1, ax1 = plt.subplots()</span><br><span class="line">ax1.pie(sizes, explode=explode, labels=labels, autopct=<span class="string">&#x27;%1.1f%%&#x27;</span>, shadow=<span class="literal">True</span>, startangle=<span class="number">90</span>)</span><br><span class="line">ax1.axis(<span class="string">&#x27;equal&#x27;</span>); <span class="comment"># Equal aspect ratio ensures that pie is drawn as a circle.</span></span><br></pre></td></tr></table></figure>
+
+<p><strong><code>wedge</code> 绘制饼图</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure(figsize=(<span class="number">5</span>,<span class="number">5</span>))</span><br><span class="line">ax1 = fig.add_subplot(<span class="number">111</span>)</span><br><span class="line">theta1 = <span class="number">0</span></span><br><span class="line">sizes = [<span class="number">15</span>, <span class="number">30</span>, <span class="number">45</span>, <span class="number">10</span>]</span><br><span class="line">patches = []</span><br><span class="line">patches += [</span><br><span class="line">    Wedge((<span class="number">0.5</span>, <span class="number">0.5</span>), <span class="number">.4</span>, <span class="number">0</span>, <span class="number">54</span>),           </span><br><span class="line">    Wedge((<span class="number">0.5</span>, <span class="number">0.5</span>), <span class="number">.4</span>, <span class="number">54</span>, <span class="number">162</span>),  </span><br><span class="line">    Wedge((<span class="number">0.5</span>, <span class="number">0.5</span>), <span class="number">.4</span>, <span class="number">162</span>, <span class="number">324</span>),           </span><br><span class="line">    Wedge((<span class="number">0.5</span>, <span class="number">0.5</span>), <span class="number">.4</span>, <span class="number">324</span>, <span class="number">360</span>),  </span><br><span class="line">]</span><br><span class="line">colors = <span class="number">100</span> * np.random.rand(<span class="built_in">len</span>(patches))</span><br><span class="line">p = PatchCollection(patches, alpha=<span class="number">0.8</span>)</span><br><span class="line">p.set_array(colors)</span><br><span class="line">ax1.add_collection(p);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-collection"><a href="#3-collection" class="headerlink" title="3.collection"></a>3.<code>collection</code></h3><p><code>collections</code> 类是用来绘制一组对象的集合，<code>collections</code> 有许多不同的子类，如 <code>RegularPolyCollection</code>，<code>CircleCollection</code>, <code>Pathcollection</code>，分别对应不同的集合子类型。其中比较常用的是散点图，它是属于 <code>PathCollection</code> 子类，<code>scatter</code> 方法提供了该类的封装，根据 <code>x</code> 与 <code>y</code> 绘制不同大小或颜色标记的散点图。它的构造方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Axes.scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None, verts=, edgecolors=None, , plotnonfinite=False, data=None, *kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>主要参数为：</p>
+<ul>
+<li><strong>x</strong>：数据点x轴的位置</li>
+<li><strong>y</strong>：数据点y轴的位置</li>
+<li><strong>s</strong>：尺寸大小</li>
+<li><strong>c</strong>：可以是单个颜色格式的字符串，也可以是一系列颜色</li>
+<li><strong>marker</strong>: 标记的类型</li>
+</ul>
+<p><strong>用 <code>scatter</code> 绘制散点图</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x = [0,2,4,6,8,10]</span><br><span class="line">y = [10]*len(x)</span><br><span class="line">s = [20*2**n for n in range(len(x))]</span><br><span class="line">plt.scatter(x,y,s=s) ;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-images"><a href="#4-images" class="headerlink" title="4.images"></a>4.<code>images</code></h3><p><code>images</code> 是 <code>matplotlib</code> 中绘制 <code>image</code> 图像的类，其构造函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class matplotlib.image.AxesImage(ax, cmap=None, norm=None, interpolation=None, origin=None, extent=None, filternorm=True, filterrad=4.0, resample=False, **kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>最常用的 <code>imshow</code> 可以根据数组绘制成图像，它的构造函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matplotlib.pyplot.imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None, vmin=None, vmax=None, origin=None, extent=None, shape=, filternorm=1, filterrad=4.0, imlim=, resample=None, url=None, , data=None, *kwargs)</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>imshow</code> 画图时首先需要传入一个数组，数组对应的是空间内的像素位置和像素点的值，<code>interpolation</code> 参数可以设置不同的插值方法，具体效果如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">methods = [None, &#x27;none&#x27;, &#x27;nearest&#x27;, &#x27;bilinear&#x27;, &#x27;bicubic&#x27;, &#x27;spline16&#x27;,</span><br><span class="line">           &#x27;spline36&#x27;, &#x27;hanning&#x27;, &#x27;hamming&#x27;, &#x27;hermite&#x27;, &#x27;kaiser&#x27;, &#x27;quadric&#x27;,</span><br><span class="line">           &#x27;catrom&#x27;, &#x27;gaussian&#x27;, &#x27;bessel&#x27;, &#x27;mitchell&#x27;, &#x27;sinc&#x27;, &#x27;lanczos&#x27;]</span><br><span class="line"></span><br><span class="line">grid = np.random.rand(4, 4)</span><br><span class="line"></span><br><span class="line">fig, axs = plt.subplots(nrows=3, ncols=6, figsize=(9, 6),</span><br><span class="line">                        subplot_kw=&#123;&#x27;xticks&#x27;: [], &#x27;yticks&#x27;: []&#125;)</span><br><span class="line"></span><br><span class="line">for ax, interp_method in zip(axs.flat, methods):</span><br><span class="line">    ax.imshow(grid, interpolation=interp_method, cmap=&#x27;viridis&#x27;)</span><br><span class="line">    ax.set_title(str(interp_method))</span><br><span class="line"></span><br><span class="line">plt.tight_layout();</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7Mcmoq.md.png" alt="img"></p>
+<p><strong>Note</strong>：其中，<code>nrows</code> 和 <code>ncols</code> 分别表示子图的行和列，此处表示 <code>3</code> 行 <code>6</code> 列。返回值 <code>axs</code> 为 <code>18</code> 个子图，因此可以通过 <code>for</code> 循环对其进行遍历，并对各个子图的属性进行修改。</p>
+<h2 id="对象容器—Object-container"><a href="#对象容器—Object-container" class="headerlink" title="对象容器—Object container"></a>对象容器—Object container</h2><p>容器会包含一些<code>primitives</code>，并且容器还有它自身的属性。<br>比如<code>Axes Artist</code>，它是一种容器，它包含了很多<code>primitives</code>，比如<code>Line2D</code>，<code>Text</code>；同时，它也有自身的属性，比如<code>xscal</code>，用来控制X轴是<code>linear</code>还是<code>log</code>的。</p>
+<h3 id="1-Figure-容器"><a href="#1-Figure-容器" class="headerlink" title="1.Figure 容器"></a>1.Figure 容器</h3><p><code>matplotlib.figure.Figure</code> 是 <code>Artist</code> 最顶层的 <code>container</code> -对象容器，它包含了图表中的所有元素。一张图表的背景就是在 <code>Figure.patch</code> 的一个矩形 <code>Rectangle</code>。<br>当我们向图表添加 <code>Figure.add_subplot()</code> 或者 <code>Figure.add_axes()</code> 元素时，这些都会被添加到 <code>Figure.axes</code> 列表中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">ax1 = fig.add_subplot(211) # 作一幅2*1的图，选择第1个子图</span><br><span class="line">ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.3]) # 位置参数，四个数分别代表了(left,bottom,width,height)</span><br><span class="line">print(ax1)</span><br><span class="line">print(fig.axes) # fig.axes 中包含了subplot和axes两个实例, 刚刚添加的</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7McELj.md.png" alt="img"></p>
+<ul>
+<li><p><strong>Note</strong>：</p>
+<p>我们发现，这里面得到的两个子图没有对齐，这是为什么呢？因为 <code>add_axes</code> 是以 <code>figure</code> 容器为基准进行对齐的。</p>
+<p>接下来，为了突出两种方式的区别，我们对图形重新绘制：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">ax1 = fig.add_subplot(211) # 作一幅2*1的图，选择第1个子图</span><br><span class="line">ax1 = fig.add_subplot(212)</span><br><span class="line">ax2 = fig.add_axes([0.0, 0., 0.7, 0.3]) # 位置参数，四个数分别代表了(left,bottom,width,height)</span><br><span class="line">print(ax1)</span><br><span class="line">print(fig.axes) # fig.axes 中包含了subplot和axes两个实例, 刚刚添加的</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以发现，两个的基准对齐位置不同，可以理解为，<code>add_subplot</code> 是重新创建了一个 <code>subplot</code> 容器，因此，在基于此函数进行增添子图的时候，是在容器内部进行对齐。而 <code>add_axes</code> 则默认是基于 <code>figure</code> 进行操作和对齐。如果要在这种情况下进行对齐，可以首先获得 <code>subplot</code> 的位置信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">ax1 = fig.add_subplot(211) # 作一幅2*1的图，选择第1个子图</span><br><span class="line"></span><br><span class="line">position = ax1.get_position()</span><br><span class="line"></span><br><span class="line">#(x0, y0) and (x1, y1) represent the the point coordinates of the lower left and upper right corner respectively</span><br><span class="line">width = position.x1 - position.x0</span><br><span class="line">height = position.y1 - position.y0</span><br><span class="line"></span><br><span class="line">ax2 = fig.add_axes([position.x0, position.y0 - 0.4, width, height]) # 位置参数，四个数分别代表了(left,bottom,width,height)</span><br><span class="line">print(ax1)</span><br><span class="line">print(fig.axes) # fig.axes 中包含了subplot和axes两个实例, 刚刚添加的</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><strong>Note</strong>: <code>ax1.get_position</code> 返回一个 <code>Bbox</code> 对象，可以通过其 <code>x0</code>, <code>y0</code>, <code>x1</code> 和 <code>y1</code> 得到左下角和右上角的坐标信息。即：</p>
+<p>综上，通过获得位置参数之后，将两张子图进行了对齐。</p>
+</li>
+</ul>
+<p>由于 <code>Figure</code> 维持了 <code>current axes</code>，因此你不应该手动的从 <code>Figure.axes</code> 列表中添加删除元素，而是要通过 <code>Figure.add_subplot()</code>、<code>Figure.add_axes()</code> 来添加元素，通过<code>Figure.delaxes()</code>来删除元素。但是你可以迭代或者访问 <code>Figure.axes</code> 中的 <code>Axes</code>，然后修改这个 <code>Axes</code> 的属性。</p>
+<p>比如下面的遍历 <code>axes</code> 里的内容，并且添加网格线：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">ax1 = fig.add_subplot(211)</span><br><span class="line"></span><br><span class="line">for ax in fig.axes:</span><br><span class="line">    ax.grid(True)</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7McPW8.md.png" alt="img"></p>
+<p><code>Figure</code> 也有它自己的 <code>text</code>、<code>line</code>、<code>patch</code>、<code>image</code>。你可以直接通过 <code>add primitive</code> 语句直接添加。但是注意 <code>Figure</code> 默认的坐标系是以像素为单位，需要转换成 <code>figure</code> 坐标系：<code>(0,0)</code> 表示左下点，<code>(1,1)</code> 表示右上点。</p>
+<p><strong>Figure容器的常见属性：</strong></p>
+<ul>
+<li><code>Figure.patch</code>属性：<code>Figure</code> 的背景矩形</li>
+<li><code>Figure.axes</code>属性：一个 <code>Axes</code> 实例的列表（包括 <code>Subplot</code>)</li>
+<li><code>Figure.images</code>属性：一个 <code>FigureImages patch</code> 列表</li>
+<li><code>Figure.lines</code>属性：一个 <code>Line2D</code> 实例的列表（很少使用）</li>
+<li><code>Figure.legends</code>属性：一个 <code>Figure Legend</code> 实例列表（不同于 <code>Axes.legends</code>)</li>
+<li><code>Figure.texts</code>属性：一个 <code>Figure Text</code> 实例列表</li>
+</ul>
+<h3 id="2-Axes-坐标系容器"><a href="#2-Axes-坐标系容器" class="headerlink" title="2.Axes 坐标系容器"></a>2.Axes 坐标系容器</h3><p><code>matplotlib.axes.Axes</code> 是 <code>matplotlib</code> 的核心。大量的用于绘图的 <code>Artist</code> 存放在它内部，并且它有许多辅助方法来创建和添加 <code>Artist</code> 给它自己，而且它也有许多赋值方法来访问和修改这些 <code>Artist</code>。</p>
+<p>和 <code>Figure</code> 容器类似，<code>Axes</code> 包含了一个 <code>patch</code> 属性，对于笛卡尔坐标系而言，它是一个 <code>Rectangle</code>；对于极坐标而言，它是一个 <code>Circle</code>。这个 <code>patch</code> 属性决定了绘图区域的形状、背景和边框。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure()</span><br><span class="line">ax = fig.add_subplot(111)</span><br><span class="line">rect = ax.patch  # axes的patch是一个Rectangle实例</span><br><span class="line">rect.set_facecolor(&#x27;green&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<p><img src="https://s4.ax1x.com/2022/01/13/7McCJf.md.png" alt="img"></p>
+<p><code>Axes</code>有许多方法用于绘图，如<code>.plot()、.text()、.hist()、.imshow()</code>等方法用于创建大多数常见的<code>primitive</code>(如<code>Line2D，Rectangle，Text，Image</code>等等）。在<code>primitives</code>中已经涉及，不再赘述。</p>
+<p><code>Subplot</code> 就是一个特殊的 <code>Axes</code>，其实例是位于网格中某个区域的 <code>Subplot</code> 实例。其实你也可以在任意区域创建 <code>Axes</code>，通过下述代码来创建一个任意区域的 <code>Axes</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Figure.add_axes([left,bottom,width,height])</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>left</code>, <code>bottom</code>, <code>width</code>, <code>height</code> 都是 <code>[0—1]</code> 之间的浮点数，他们代表了相对于 <code>Figure</code> 的坐标。</p>
+<p>你不应该直接通过 <code>Axes.lines</code> 和 <code>Axes.patches</code> 列表来添加图表。因为当创建或添加一个对象到图表中时，<code>Axes</code>会做许多自动化的工作:</p>
+<ul>
+<li>它会设置 <code>Artist</code> 中 <code>figure</code> 和 <code>axes</code> 的属性，同时默认 <code>Axes</code> 的转换；</li>
+<li>它也会检视 <code>Artist</code> 中的数据，来更新数据结构，这样数据范围和呈现方式可以根据作图范围自动调整。</li>
+</ul>
+<p>可以使用Axes的辅助方法 <code>.add_line()</code> 和 <code>.add_patch()</code> 方法来直接添加。</p>
+<p>此外，<code>Axes</code> 还包含两个最重要的 <code>Artist container</code>：</p>
+<ul>
+<li><code>ax.xaxis</code>：<code>XAxis</code> 对象的实例，用于处理 <code>x</code> 轴 <code>tick</code> 以及 <code>label</code> 的绘制；</li>
+<li><code>ax.yaxis</code>：<code>YAxis</code> 对象的实例，用于处理 <code>y</code> 轴 <code>tick</code> 以及 <code>label</code> 的绘制;</li>
+</ul>
+<p><strong>Axes容器</strong>的常见属性有：</p>
+<ul>
+<li><code>artists</code>: <code>Artist</code> 实例列表</li>
+<li><code>patch</code>: <code>Axes</code> 所在的矩形实例</li>
+<li><code>collections</code>: <code>Collection</code> 实例</li>
+<li><code>images</code>: <code>Axes</code> 图像</li>
+<li><code>legends</code>: <code>Legend</code> 实例</li>
+<li><code>lines</code>: <code>Line2D</code> 实例</li>
+<li><code>patches</code>: <code>Patch</code> 实例</li>
+<li><code>texts</code>: <code>Text</code> 实例</li>
+<li><code>xaxis</code>: <code>matplotlib.axis.XAxis</code> 实例</li>
+<li><code>yaxis</code>: <code>matplotlib.axis.YAxis</code> 实例</li>
+</ul>
+<h3 id="3-Axis-坐标轴容器"><a href="#3-Axis-坐标轴容器" class="headerlink" title="3.Axis 坐标轴容器"></a>3.Axis 坐标轴容器</h3><p><code>matplotlib.axis.Axis</code> 实例处理 <code>tick line</code>、<code>grid line</code>、<code>tick label</code> 以及 <code>axis label</code> 的绘制，它包括坐标轴上的刻度线、刻度 <code>label</code>、坐标网格、坐标轴标题。通常可以独立的配置 <code>y</code> 轴的左边刻度以及右边的刻度，也可以独立地配置 <code>x</code> 轴的上边刻度以及下边的刻度。</p>
+<p>刻度包括主刻度和次刻度，它们都是 <code>Tick</code> 刻度对象。</p>
+<p><code>Axis</code> 也存储了用于自适应、平移以及缩放的 <code>data_interval</code> 和 <code>view_interval</code>。它还有 <code>Locator</code> 实例和 <code>Formatter</code> 实例用于控制刻度线的位置以及刻度 <code>label</code>。</p>
+<p>每个 <code>Axis</code> 都有一个 <code>label</code> 属性，也有主刻度列表和次刻度列表。这些 <code>ticks</code> 是 <code>axis.XTick</code>和 <code>axis.YTick</code> 实例，它们包含着 <code>line primitive</code> 以及 <code>text primitive</code> 用来渲染刻度线以及刻度文本。</p>
+<p>刻度是动态创建的，只有在需要创建的时候才创建（比如缩放的时候）。<code>Axis</code> 也提供了一些辅助方法来获取刻度文本、刻度线位置等等：</p>
+<p>常见的如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 不用print，直接显示结果</span><br><span class="line">from IPython.core.interactiveshell import InteractiveShell</span><br><span class="line">InteractiveShell.ast_node_interactivity = &quot;all&quot;</span><br><span class="line"></span><br><span class="line">fig, ax = plt.subplots()</span><br><span class="line">x = range(0,5)</span><br><span class="line">y = [2,5,7,8,10]</span><br><span class="line">plt.plot(x, y, &#x27;-&#x27;)</span><br><span class="line"></span><br><span class="line">axis = ax.xaxis # axis为X轴对象</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>获取刻度线位置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">axis.get_ticklocs()     # 获取刻度线位置</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([-0.5,  0. ,  0.5,  1. ,  1.5,  2. ,  2.5,  3. ,  3.5,  4. ,  4.5])</span><br></pre></td></tr></table></figure></li>
+<li><p>获取刻度线 <code>label</code> 列表</p>
+<p>返回一个 <code>Text</code> 实例的列表，可以通过 <code>minor=True|False</code> 关键字参数控制输出 <code>minor</code> 还是 <code>major</code> 的 <code>tick label</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">axis.get_ticklabels()</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[Text(-0.5, 0, &#x27;−0.5&#x27;),</span><br><span class="line"> Text(0.0, 0, &#x27;0.0&#x27;),</span><br><span class="line"> Text(0.5, 0, &#x27;0.5&#x27;),</span><br><span class="line"> Text(1.0, 0, &#x27;1.0&#x27;),</span><br><span class="line"> Text(1.5, 0, &#x27;1.5&#x27;),</span><br><span class="line"> Text(2.0, 0, &#x27;2.0&#x27;),</span><br><span class="line"> Text(2.5, 0, &#x27;2.5&#x27;),</span><br><span class="line"> Text(3.0, 0, &#x27;3.0&#x27;),</span><br><span class="line"> Text(3.5, 0, &#x27;3.5&#x27;),</span><br><span class="line"> Text(4.0, 0, &#x27;4.0&#x27;),</span><br><span class="line"> Text(4.5, 0, &#x27;4.5&#x27;)]</span><br></pre></td></tr></table></figure></li>
+<li><p>获取刻度线列表</p>
+<p>一个 <code>Line2D</code> 实例的列表。可以通过 <code>minor=True|False</code> 关键字参数控制输出 <code>minor</code> 还是 <code>major</code> 的 <code>tick line</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">axis.get_ticklines()    # 获取刻度线列表(</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a list of 22 Line2D ticklines objects&gt;</span><br></pre></td></tr></table></figure></li>
+<li><p>获取轴刻度间隔</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">axis.get_data_interval()</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([0., 4.])</span><br></pre></td></tr></table></figure></li>
+<li><p>获取轴视角（位置）的间隔</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">axis.get_view_interval()</span><br></pre></td></tr></table></figure>
+
+<p>Results:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([-0.2,  4.2])</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>下面的例子展示了如何调整一些轴和刻度的属性(忽略美观度，仅作调整参考)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">fig = plt.figure() <span class="comment"># 创建一个新图表</span></span><br><span class="line">rect = fig.patch   <span class="comment"># 矩形实例并将其设为黄色</span></span><br><span class="line">rect.set_facecolor(<span class="string">&#x27;lightgoldenrodyellow&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ax1 = fig.add_axes([<span class="number">0.1</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.4</span>]) <span class="comment"># 创一个axes对象，从(0.1,0.3)的位置开始，宽和高都为0.4，</span></span><br><span class="line">rect = ax1.patch   <span class="comment"># ax1的矩形设为灰色</span></span><br><span class="line">rect.set_facecolor(<span class="string">&#x27;lightslategray&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> label <span class="keyword">in</span> ax1.xaxis.get_ticklabels():</span><br><span class="line">    <span class="comment"># 调用x轴刻度标签实例，是一个text实例</span></span><br><span class="line">    label.set_color(<span class="string">&#x27;red&#x27;</span>) <span class="comment"># 颜色</span></span><br><span class="line">    label.set_rotation(<span class="number">45</span>) <span class="comment"># 旋转角度</span></span><br><span class="line">    label.set_fontsize(<span class="number">16</span>) <span class="comment"># 字体大小</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> ax1.yaxis.get_ticklines():</span><br><span class="line">    <span class="comment"># 调用y轴刻度线条实例, 是一个Line2D实例</span></span><br><span class="line">    line.set_color(<span class="string">&#x27;green&#x27;</span>)    <span class="comment"># 颜色</span></span><br><span class="line">    line.set_markersize(<span class="number">25</span>)    <span class="comment"># marker大小</span></span><br><span class="line">    line.set_markeredgewidth(<span class="number">2</span>)<span class="comment"># marker粗细</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://s4.ax1x.com/2022/01/13/7McSot.png"></p>
+<h3 id="4-Tick-容器"><a href="#4-Tick-容器" class="headerlink" title="4.Tick 容器"></a>4.Tick 容器</h3><p><code>matplotlib.axis.Tick</code> 是从 <code>Figure</code> 到 <code>Axes</code> 到 <code>Axis</code> 到 <code>Tick</code> 中最末端的容器对象。<code>Tick</code> 包含了 <code>tick</code>、<code>grid line</code> 实例以及对应的 <code>label</code>。</p>
+<p>所有的这些都可以通过 <code>Tick</code> 的属性获取，常见的 <code>tick</code> 属性有 ：</p>
+<ul>
+<li><code>Tick.tick1line</code>：<code>Line2D</code> 实例</li>
+<li><code>Tick.tick2line</code>：<code>Line2D</code> 实例</li>
+<li><code>Tick.gridline</code>：<code>Line2D</code> 实例</li>
+<li><code>Tick.label1</code>：<code>Text</code> 实例</li>
+<li><code>Tick.label2</code>：<code>Text</code> 实例</li>
+</ul>
+<p>其中，<code>y</code> 轴分为左右两个，因此 <code>tick1</code> 对应左侧的轴；<code>tick2</code> 对应右侧的轴。<br><code>x</code> 轴分为上下两个，因此 <code>tick1</code> 对应下侧的轴；<code>tick2</code> 对应上侧的轴。</p>
+<p>下面的例子展示了，如何将 <code>Y</code> 轴右边轴设为主轴，并将标签设置为美元符号且为绿色：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fig, ax = plt.subplots()</span><br><span class="line">ax.plot(<span class="number">100</span>*np.random.rand(<span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置ticker的显示格式</span></span><br><span class="line">formatter = matplotlib.ticker.FormatStrFormatter(<span class="string">&#x27;$%1.2f&#x27;</span>)</span><br><span class="line">ax.yaxis.set_major_formatter(formatter)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置ticker的参数，右侧为主轴，颜色为绿色</span></span><br><span class="line">ax.yaxis.set_tick_params(which=<span class="string">&#x27;major&#x27;</span>, labelcolor=<span class="string">&#x27;green&#x27;</span>,</span><br><span class="line">                         labelleft=<span class="literal">False</span>, labelright=<span class="literal">True</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><ul>
+<li><p>primitives 和 container的区别和联系是什么，分别用于控制可视化图表中的哪些要素</p>
+<ul>
+<li><code>container</code> 是容器，可以理解为一个盒子，用来盛放 <code>Axis</code> 坐标轴、<code>Axes</code> 坐标系 和 <code>Figure</code> 图形；</li>
+<li><code>primitives</code> 表示基本要素，包括 <code>Line2D</code>, <code>Rectangle</code>, <code>Text</code>, <code>AxesImage</code> 这些基本的绘图要素。</li>
+</ul>
+<p>它们之间的关系是使用 <code>Figure</code> 容器创建一个或多个 <code>Axis</code> 坐标轴容器或者 <code>Subplot</code> 实例，然后用 <code>Axes</code> 坐标轴实例的帮助方法创建 <code>primitives</code>要素。接下来，我们用一个例子来演示。</p>
+</li>
+<li><p>使用提供的drug数据集，对第一列yyyy和第二列state分组求和，画出下面折线图。PA加粗标黄，其他为灰色。<br>图标题和横纵坐标轴标题，以及线的文本暂不做要求。</p>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20210523162430365.png" alt="img"></p>
+<ul>
+<li>分别用一组长方形柱和填充面积的方式模仿画出下图，函数 y = -1 * (x - 2) * (x - 8) +10 在区间[2,9]的积分面积<br><img src="https://img-blog.csdnimg.cn/20201126105910781.png" alt="img"><br><img src="https://img-blog.csdnimg.cn/20201126105910780.png" alt="img"></li>
+<li>参考<a target="_blank" rel="noopener" href="https://www.yangsuoly.com/2022/01/11/Fantastic-Matplotlib/#more">Fantastic-Matplotlib | 独孤诗人的学习驿站 (yangsuoly.com)</a></li>
+</ul>
+<h2 id="参考资料¶"><a href="#参考资料¶" class="headerlink" title="参考资料¶"></a>参考资料<a target="_blank" rel="noopener" href="https://datawhalechina.github.io/fantastic-matplotlib/%E7%AC%AC%E4%BA%8C%E5%9B%9E%EF%BC%9A%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4/index.html#id4">¶</a></h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/32693665">1. matplotlib设计的基本逻辑</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bookstack.cn/read/huaxiaozhuan-ai/spilt.2.333f5abdbabf383d.md">2. AI算法工程师手册</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Hesper</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/08/02/%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib/">http://example.com/2022/08/02/%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">Hesper'blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/yr.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/08/02/%E5%B8%83%E5%B1%80%E6%A0%BC%E5%BC%8F%E5%AE%9A%E6%96%B9%E5%9C%86/"><img class="prev-cover" src="/img/yr.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info"></div></div></a></div><div class="next-post pull-right"><a href="/2021/10/15/Node%E4%BB%8B%E7%BB%8D/"><img class="next-cover" src="/img/yr.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info"></div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://avatars.githubusercontent.com/Hesper-i" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Hesper</div><div class="author-info__description">A simple website</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/Hesper-i" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:huangd.i@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib"><span class="toc-number">1.</span> <span class="toc-text">艺术画笔见乾坤—Matplotlib</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%98%E5%9B%BE%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.1.</span> <span class="toc-text">绘图步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Artist%E5%88%86%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">Artist分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%85%83%E7%B4%A0-primitives"><span class="toc-number">1.3.</span> <span class="toc-text">基本元素-primitives</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Line2D"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. Line2D</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AELine2D%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">1.1 如何设置Line2D的属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6line"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">1.2 如何绘制line</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-patches"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.patches</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Rectangle-%E7%9F%A9%E5%BD%A2"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">1.Rectangle-矩形</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Polygon-%E5%A4%9A%E8%BE%B9%E5%BD%A2"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">2.Polygon-多边形</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Wedge-%E6%A5%94%E5%BD%A2"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">3.Wedge-楔形</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-collection"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.collection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-images"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.images</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%AE%B9%E5%99%A8%E2%80%94Object-container"><span class="toc-number">1.4.</span> <span class="toc-text">对象容器—Object container</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Figure-%E5%AE%B9%E5%99%A8"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.Figure 容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Axes-%E5%9D%90%E6%A0%87%E7%B3%BB%E5%AE%B9%E5%99%A8"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.Axes 坐标系容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Axis-%E5%9D%90%E6%A0%87%E8%BD%B4%E5%AE%B9%E5%99%A8"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.Axis 坐标轴容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Tick-%E5%AE%B9%E5%99%A8"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.Tick 容器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E9%A2%98"><span class="toc-number">1.5.</span> <span class="toc-text">思考题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%C2%B6"><span class="toc-number">1.6.</span> <span class="toc-text">参考资料</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/02/%E5%B8%83%E5%B1%80%E6%A0%BC%E5%BC%8F%E5%AE%9A%E6%96%B9%E5%9C%86/" title="无题"><img src="/img/yr.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无题"/></a><div class="content"><a class="title" href="/2022/08/02/%E5%B8%83%E5%B1%80%E6%A0%BC%E5%BC%8F%E5%AE%9A%E6%96%B9%E5%9C%86/" title="无题">无题</a><time datetime="2022-08-02T03:14:13.698Z" title="发表于 2022-08-02 11:14:13">2022-08-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/02/%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib/" title="无题"><img src="/img/yr.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无题"/></a><div class="content"><a class="title" href="/2022/08/02/%E8%89%BA%E6%9C%AF%E7%94%BB%E7%AC%94%E8%A7%81%E4%B9%BE%E5%9D%A4%E2%80%94Matplotlib/" title="无题">无题</a><time datetime="2022-08-02T03:13:50.850Z" title="发表于 2022-08-02 11:13:50">2022-08-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/15/Node%E4%BB%8B%E7%BB%8D/" title="无题"><img src="/img/yr.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无题"/></a><div class="content"><a class="title" href="/2021/10/15/Node%E4%BB%8B%E7%BB%8D/" title="无题">无题</a><time datetime="2021-10-15T14:28:17.320Z" title="发表于 2021-10-15 22:28:17">2021-10-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/08/27/hello-world/" title="Hello World"><img src="https://img.wangsilin.cn/bing/1" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2021/08/27/hello-world/" title="Hello World">Hello World</a><time datetime="2021-08-27T08:37:50.175Z" title="发表于 2021-08-27 16:37:50">2021-08-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: #707070"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Hesper</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/hibiki.model.json"},"display":{"position":"left","width":150,"height":350},"mobile":{"show":false},"react":{"opacity":0.7},"log":false});</script></body></html>
