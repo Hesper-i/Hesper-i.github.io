@@ -80,19 +80,19 @@ function bot_ui_ini() {
                 }).then(function () {
                     botui.message.add({
                         delay: 1200,
-                        content: "其实本来也想当acmer，无奈不在一个校区"
+                        content: "其实本来也想当acmer，无奈有点难"
                     }).then(function () {
                         botui.message.add({
                             delay: 1500,
-                            content: "目前主要学习一些C++和Python，会刷一些算法题"
+                            content: "目前主要学习一些前端技术和Python，也会刷一些算法"
                         }).then(function () {
                             botui.message.add({
                                 delay: 1500,
-                                content: "感兴趣的方向，是后端/数据分析还有智能算法等等..."
+                                content: "自学的方向，是前端/可视化数据（data science）以及机器学习（machine learning）"
                             }).then(function () {
                                 botui.message.add({
                                     delay: 1800,
-                                    content: "也喜欢音乐,（笛子学习中...)今后笛声一响，江湖人莫不先闻声后丧胆，嘿嘿嘿有品"
+                                    content: "喜欢音乐,（笛子学习中...)希望有一天能够被称为音乐大师，嘿嘿嘿"
                                 }).then(function () {
                                     botui.action.button({
                                         delay: 1100,
@@ -118,7 +118,7 @@ function bot_ui_ini() {
                 botui.action.button({
                     delay: 1500,
                     action: [{
-                        text: "为什么会喜欢星星呢？ 🤔",
+                        text: "为什么是白猫呢？ 🤔",
                         value: "why-cat"
                     }]
                 }).then(function (a) {
@@ -129,11 +129,11 @@ function bot_ui_ini() {
         fourthpart = function () {
             botui.message.add({
                 delay: 1E3,
-                content: "那是一种说不清道不明的感觉啊…它神秘浩瀚，当你凝望星空的时候，就能感受到庄子所说的“天地与我共生，而万物与我为一 "。
+                content: "因为对GitHub有种执念… "
             }).then(function () {
                 botui.message.add({
                     delay: 1100,
-                    content: "其实我也有想过学天文学之类的呢"
+                    content: "而且我真的是猫控！"
                 }).then(function () {
                     botui.action.button({
                         delay: 1500,
